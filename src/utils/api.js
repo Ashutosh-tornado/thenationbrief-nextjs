@@ -1,4 +1,4 @@
-const BASE_URL = 'https://thenationbrief.com/wp-json/wp/v2'
+const BASE_URL = 'https://cms.thenationbrief.com/wp-json/wp/v2'
 
 export async function fetchPosts(params = {}) {
   const query = new URLSearchParams({ _embed: 1, per_page: 12, ...params }).toString()
