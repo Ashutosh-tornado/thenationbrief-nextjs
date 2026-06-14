@@ -26,7 +26,7 @@ module.exports = {
 
       for (const post of posts) {
         result.push({
-          loc: `/${post.slug}`,
+          loc: `/post/${post.slug}`,
           lastmod: post.modified,
           changefreq: 'weekly',
           priority: 0.8,
