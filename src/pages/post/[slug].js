@@ -15,7 +15,7 @@ const CATEGORY_META = {
 
 const processContent = (html) => {
   if (!html) return ''
-  const siteUrl = 'https://ghostwhite-finch-655895.hostingersite.com'
+  const siteUrl = 'https://thenationbrief.com'
   let p = html.replace(new RegExp(`href="${siteUrl}[^"]*?(#[^"]+)"`, 'g'), 'href="$1"')
   p = p.replace(/href="https?:\/\/[^"]*?(#[^"]+)"/g, 'href="$1"')
   p = p.replace(/background-color\s*:\s*[^;'"]+;?/gi, '')
