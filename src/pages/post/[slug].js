@@ -15,21 +15,29 @@ const CATEGORY_META = {
 
 const processContent = (html) => {
   if (!html) return ''
-  const siteUrl = 'https://thenationbrief.com'
-  const cmsUrl  = 'https://cms.thenationbrief.com'
+  const FRONT = 'https://thenationbrief.com'
+  const CMS   = 'https://cms.thenationbrief.com'
+  const PAGES = ['about', 'contact', 'privacy-policy'] // real pages, not posts
 
-  // anchor links (TOC etc.) → bare #fragment
-  let p = html.replace(new RegExp(`href="${siteUrl}[^"]*?(#[^"]+)"`, 'g'), 'href="$1"')
+  let p = html
+
+  // 1) anchor links (TOC etc.) -> bare #fragment
   p = p.replace(/href="https?:\/\/[^"]*?(#[^"]+)"/g, 'href="$1"')
 
-  // internal CMS links → frontend routes (media/admin paths chhod do)
-  p = p.replace(new RegExp(`href="${cmsUrl}/category/([^"/]+)/?"`, 'g'), 'href="/category/$1"')
-  p = p.replace(new RegExp(`href="${cmsUrl}/?"`, 'g'), 'href="/"')
-  p = p.replace(new RegExp(`href="${cmsUrl}/(?!wp-)([^"/#]+)/?"`, 'g'), 'href="/post/$1"')
+  // 2) homepage links (either domain) -> /
+  p = p.replace(new RegExp(`href="${CMS}/?"`, 'g'), 'href="/"')
+  p = p.replace(new RegExp(`href="${FRONT}/?"`, 'g'), 'href="/"')
 
-  // inline background styles strip
+  // 3) internal single-slug links (either domain) -> /post/<slug>
+  p = p.replace(
+    new RegExp(`href="(?:${CMS}|${FRONT})/([a-z0-9-]+)/?"`, 'g'),
+    (m, slug) => (PAGES.includes(slug) ? `href="/${slug}"` : `href="/post/${slug}"`)
+  )
+
+  // 4) strip inline background styles
   p = p.replace(/background-color\s*:\s*[^;'"]+;?/gi, '')
   p = p.replace(/background\s*:\s*(?!url|linear|radial)[^;'"]+;?/gi, '')
+
   return p
 }
 
