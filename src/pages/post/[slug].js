@@ -16,8 +16,18 @@ const CATEGORY_META = {
 const processContent = (html) => {
   if (!html) return ''
   const siteUrl = 'https://thenationbrief.com'
+  const cmsUrl  = 'https://cms.thenationbrief.com'
+
+  // anchor links (TOC etc.) → bare #fragment
   let p = html.replace(new RegExp(`href="${siteUrl}[^"]*?(#[^"]+)"`, 'g'), 'href="$1"')
   p = p.replace(/href="https?:\/\/[^"]*?(#[^"]+)"/g, 'href="$1"')
+
+  // internal CMS links → frontend routes (media/admin paths chhod do)
+  p = p.replace(new RegExp(`href="${cmsUrl}/category/([^"/]+)/?"`, 'g'), 'href="/category/$1"')
+  p = p.replace(new RegExp(`href="${cmsUrl}/?"`, 'g'), 'href="/"')
+  p = p.replace(new RegExp(`href="${cmsUrl}/(?!wp-)([^"/#]+)/?"`, 'g'), 'href="/post/$1"')
+
+  // inline background styles strip
   p = p.replace(/background-color\s*:\s*[^;'"]+;?/gi, '')
   p = p.replace(/background\s*:\s*(?!url|linear|radial)[^;'"]+;?/gi, '')
   return p
