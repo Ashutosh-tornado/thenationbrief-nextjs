@@ -166,3 +166,21 @@
 .article-content .wp-block-table tbody tr:nth-child(even) {
   background: #f4f6f9 !important;
 }
+
+/* Mobile responsive — smooth horizontal scroll */
+.article-content figure.wp-block-table {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+@media (max-width: 640px) {
+  .article-content .wp-block-table table {
+    min-width: 560px;            /* columns crush na hon, figure scroll karega */
+    font-size: 0.82rem !important;
+  }
+  .article-content .wp-block-table th,
+  .article-content .wp-block-table td {
+    padding: 9px 10px !important;
+    line-height: 1.4;
+  }
+}
