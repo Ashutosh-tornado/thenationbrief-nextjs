@@ -4,6 +4,7 @@ import Head from 'next/head'
 import { useRouter } from 'next/router'
 import { fetchPostBySlug } from '../../utils/api'
 import { useTheme } from '../../context/ThemeContext'
+import { decode } from 'html-entities'
 
 const CATEGORY_META = {
   'defence':           { label:'Defence',       color:'#2563EB' },
@@ -92,8 +93,10 @@ export default function SinglePost({ post }) {
   const backPath  = ref === 'category' && primaryCat ? `/category/${primaryCat.slug}` : '/'
   const backLabel = ref === 'category' && primaryCat ? primaryCat.name.toUpperCase() : 'HOME'
 
-  const pageTitle = `${stripHtml(post.title.rendered)} — TheNationBrief`
-  const pageDesc  = stripHtml(post.excerpt?.rendered).substring(0, 155)
+  const pageTitle = `${decode(stripHtml(post.title.rendered))} — TheNationBrief`
+  const pageDesc = decode(
+  stripHtml(post.excerpt?.rendered)
+).substring(0, 155)
   const canonical = `https://www.thenationbrief.com/post/${post.slug}`
 
   return (
