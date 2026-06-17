@@ -138,3 +138,31 @@
   .ez-toc-container { font-size: 12px !important; }
   .ez-toc-list li   { margin-bottom: 6px !important; }
 }
+
+.article-content figure.tnb-table {
+  margin: 1.75rem 0;
+  overflow-x: auto;
+}
+.article-content .tnb-table table {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: auto;
+  font-size: 0.95rem;
+  border: 1px solid #cbd5e1;
+}
+.article-content .tnb-table th,
+.article-content .tnb-table td {
+  border: 1px solid #cbd5e1;
+  padding: 12px 16px;
+  text-align: center;
+  vertical-align: middle;
+  line-height: 1.5;
+}
+.article-content .tnb-table thead th {
+  background: #0f2440;
+  color: #fff;
+  font-weight: 600;
+}
+.article-content .tnb-table tbody tr:nth-child(even) {
+  background: #f4f6f9;
+}
