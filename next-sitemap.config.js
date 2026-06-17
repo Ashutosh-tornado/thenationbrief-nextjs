@@ -17,7 +17,7 @@ module.exports = {
 
     while (hasMore) {
       const res = await fetch(
-        `https://cms.thenationbrief.com/wp-json/wp/v2/posts?per_page=100&page=${page}&_fields=slug,modified`
+        `https://cms.thenationbrief.com/wp-json/wp/v2/posts?per_page=100&page=${page}&_fields=slug,modified_gmt,modified`
       )
       if (!res.ok) { hasMore = false; break }
 
@@ -25,9 +25,14 @@ module.exports = {
       if (posts.length === 0) { hasMore = false; break }
 
       for (const post of posts) {
+        const raw = post.modified_gmt || post.modified
+        const lastmod = raw
+          ? new Date(`${raw}Z`).toISOString()   // valid: 2026-06-18T01:12:09.000Z
+          : new Date().toISOString()
+
         result.push({
           loc: `/post/${post.slug}`,
-          lastmod: post.modified,
+          lastmod,
           changefreq: 'weekly',
           priority: 0.8,
         })
