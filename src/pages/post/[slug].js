@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useEffect } from 'react'
 import Link from 'next/link'
 import Head from 'next/head'
 import { useRouter } from 'next/router'
@@ -17,47 +17,27 @@ const processContent = (html) => {
   if (!html) return ''
   const FRONT = 'https://thenationbrief.com'
   const CMS   = 'https://cms.thenationbrief.com'
-  const PAGES = ['about', 'contact', 'privacy-policy'] // real pages, not posts
+  const PAGES = ['about', 'contact', 'privacy-policy']
 
   let p = html
-
-  // 1) anchor links (TOC etc.) -> bare #fragment
   p = p.replace(/href="https?:\/\/[^"]*?(#[^"]+)"/g, 'href="$1"')
-
-  // 2) homepage links (either domain) -> /
   p = p.replace(new RegExp(`href="${CMS}/?"`, 'g'), 'href="/"')
   p = p.replace(new RegExp(`href="${FRONT}/?"`, 'g'), 'href="/"')
-
-  // 3) internal single-slug links (either domain) -> /post/<slug>
   p = p.replace(
     new RegExp(`href="(?:${CMS}|${FRONT})/([a-z0-9-]+)/?"`, 'g'),
     (m, slug) => (PAGES.includes(slug) ? `href="/${slug}"` : `href="/post/${slug}"`)
   )
-
-  // 4) strip inline background styles
   p = p.replace(/background-color\s*:\s*[^;'"]+;?/gi, '')
   p = p.replace(/background\s*:\s*(?!url|linear|radial)[^;'"]+;?/gi, '')
-
   return p
 }
 
 const stripHtml = (html) => (html || '').replace(/<[^>]+>/g, '').trim()
 
-export default function SinglePost() {
-  const router             = useRouter()
-  const { slug, ref }      = router.query
-  const { isDark }         = useTheme()
-  const [post,    setPost]    = useState(null)
-  const [loading, setLoading] = useState(true)
-
-  useEffect(() => {
-    if (!slug) return
-    setLoading(true)
-    setPost(null)
-    fetchPostBySlug(slug)
-      .then(d => { setPost(d); setLoading(false) })
-      .catch(() => setLoading(false))
-  }, [slug])
+export default function SinglePost({ post }) {
+  const router     = useRouter()
+  const { ref }    = router.query
+  const { isDark } = useTheme()
 
   useEffect(() => {
     if (!post) return
@@ -78,7 +58,7 @@ export default function SinglePost() {
   const B  = isDark ? '#1E293B' : '#E5E5E5'
   const TM = isDark ? '#9ca3af' : '#6b7280'
 
-  if (loading || !slug) return (
+  if (router.isFallback) return (
     <div className="flex flex-col items-center justify-center gap-3"
       style={{ minHeight:'60vh', backgroundColor:BG }}>
       <div className="w-8 h-8 rounded-full border-2 border-blue-500 border-t-transparent animate-spin" />
@@ -109,25 +89,23 @@ export default function SinglePost() {
   const wordCount = post.content?.rendered?.replace(/<[^>]+>/g,'')?.split(' ')?.length || 300
   const readTime  = Math.max(2, Math.ceil(wordCount / 300))
 
-  const backPath  = ref === 'category' && primaryCat
-    ? `/category/${primaryCat.slug}`
-    : '/'
-  const backLabel = ref === 'category' && primaryCat
-    ? primaryCat.name.toUpperCase()
-    : 'HOME'
+  const backPath  = ref === 'category' && primaryCat ? `/category/${primaryCat.slug}` : '/'
+  const backLabel = ref === 'category' && primaryCat ? primaryCat.name.toUpperCase() : 'HOME'
 
-  // SEO
   const pageTitle = `${stripHtml(post.title.rendered)} — TheNationBrief`
   const pageDesc  = stripHtml(post.excerpt?.rendered).substring(0, 155)
+  const canonical = `https://www.thenationbrief.com/post/${post.slug}`
 
   return (
     <>
       <Head>
         <title>{pageTitle}</title>
         <meta name="description" content={pageDesc} />
+        <link rel="canonical" href={canonical} />
         <meta property="og:title" content={pageTitle} />
         <meta property="og:description" content={pageDesc} />
         <meta property="og:type" content="article" />
+        <meta property="og:url" content={canonical} />
         {featuredImage && <meta property="og:image" content={featuredImage} />}
         <meta name="twitter:card" content={featuredImage ? 'summary_large_image' : 'summary'} />
         <meta name="twitter:title" content={pageTitle} />
@@ -136,7 +114,6 @@ export default function SinglePost() {
       </Head>
 
       <article style={{ backgroundColor:BG, minHeight:'100vh' }}>
-
         <style>{`
           .ez-toc-container, .ez-toc-widget-container,
           .wp-block-table-of-contents, [class*="toc"] {
@@ -146,14 +123,12 @@ export default function SinglePost() {
 
         <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 pt-8 sm:pt-10 relative z-10 pb-16 sm:pb-24 space-y-4 sm:space-y-6">
 
-          {/* Back button */}
           <Link href={backPath}
             className="inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider transition-opacity hover:opacity-70"
             style={{ fontFamily:'JetBrains Mono, monospace', color: cm.color }}>
             ← BACK TO {backLabel}
           </Link>
 
-          {/* Badge + date + read time */}
           <div className="flex flex-wrap items-center gap-2 sm:gap-3">
             {primaryCat && (
               <Link href={`/category/${primaryCat.slug}`}
@@ -172,7 +147,6 @@ export default function SinglePost() {
             </span>
           </div>
 
-          {/* Title */}
           <h1 className="font-black leading-tight"
             style={{
               fontFamily: 'Playfair Display, serif',
@@ -181,7 +155,6 @@ export default function SinglePost() {
             }}
             dangerouslySetInnerHTML={{ __html: post.title.rendered }} />
 
-          {/* Author */}
           <div className="flex items-center gap-2.5 sm:gap-3">
             <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full flex items-center justify-center text-white font-bold text-xs sm:text-sm flex-shrink-0"
               style={{ backgroundColor: cm.color, fontFamily:'JetBrains Mono, monospace' }}>
@@ -199,7 +172,6 @@ export default function SinglePost() {
             </div>
           </div>
 
-          {/* Featured image */}
           {featuredImage && (
             <div className="space-y-2 sm:space-y-3 pt-2 sm:pt-4">
               <div className="rounded-xl sm:rounded-2xl overflow-hidden border shadow-lg"
@@ -209,14 +181,12 @@ export default function SinglePost() {
             </div>
           )}
 
-          {/* Article content */}
           <div
             className="pt-2 sm:pt-4 article-content"
             style={{ color: isDark ? '#d1d5db' : '#374151' }}
             dangerouslySetInnerHTML={{ __html: processContent(post.content.rendered) }}
           />
 
-          {/* Footer nav */}
           <div className="pt-6 sm:pt-8 flex items-center justify-between border-t"
             style={{ borderColor:B }}>
             <Link href={backPath}
@@ -234,4 +204,34 @@ export default function SinglePost() {
       </article>
     </>
   )
+}
+
+export async function getStaticPaths() {
+  const paths = []
+  try {
+    let page = 1, hasMore = true
+    while (hasMore) {
+      const res = await fetch(
+        `https://cms.thenationbrief.com/wp-json/wp/v2/posts?per_page=100&page=${page}&_fields=slug`
+      )
+      if (!res.ok) break
+      const posts = await res.json()
+      if (!Array.isArray(posts) || posts.length === 0) break
+      posts.forEach(p => paths.push({ params: { slug: p.slug } }))
+      posts.length < 100 ? hasMore = false : page++
+    }
+  } catch (e) {
+    // build still succeeds; any missing page generated on first request
+  }
+  return { paths, fallback: 'blocking' }
+}
+
+export async function getStaticProps({ params }) {
+  try {
+    const post = await fetchPostBySlug(params.slug)
+    if (!post) return { notFound: true, revalidate: 60 }
+    return { props: { post }, revalidate: 21600 } // ISR: refresh from WP every 6 hours
+  } catch (e) {
+    return { notFound: true, revalidate: 60 }
+  }
 }
