@@ -189,7 +189,12 @@
   margin: 0.4rem 0;
 }
 
-/* Mobile responsive — smooth horizontal scroll */
+.article-content mark {
+  background-color: transparent;
+}
+
+
+/* Mobile responsive — smooth horizontal scroll */ 
 .article-content figure.wp-block-table {
   overflow-x: auto;
   -webkit-overflow-scrolling: touch;
