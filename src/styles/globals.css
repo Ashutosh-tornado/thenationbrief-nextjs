@@ -167,6 +167,28 @@
   background: #f4f6f9 !important;
 }
 
+/* Restore list styling inside article content (Tailwind preflight strips it) */
+.article-content ul,
+.article-content ol {
+  margin: 1rem 0;
+  padding-left: 1.5rem;
+}
+.article-content ul {
+  list-style: disc;
+}
+.article-content ol {
+  list-style: decimal;
+}
+.article-content li {
+  display: list-item;
+  margin-bottom: 0.4rem;
+  line-height: 1.7;
+}
+.article-content ul ul {
+  list-style: circle;
+  margin: 0.4rem 0;
+}
+
 /* Mobile responsive — smooth horizontal scroll */
 .article-content figure.wp-block-table {
   overflow-x: auto;
